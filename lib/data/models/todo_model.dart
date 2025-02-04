@@ -1,41 +1,35 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:equatable/equatable.dart';
-
-class Todo extends Equatable {
-  final String? todoId;
+class TodoModel {
+  final String id;
   final String title;
-  final String description;
-  final bool isCompleted;
-  final DateTime createdAt;
+  final String note;
+  final DateTime dateTime;
+  final bool isDone;
 
-  const Todo({
-    this.todoId,
+  TodoModel({
+    required this.id,
     required this.title,
-    required this.description,
-    this.isCompleted = false,
-    required this.createdAt,
+    required this.note,
+    required this.dateTime,
+    this.isDone = false,
   });
 
-  factory Todo.fromFirestore(DocumentSnapshot doc) {
-    Map data = doc.data() as Map;
-    return Todo(
-      todoId: doc.id,
-      title: data['title'],
-      description: data['description'],
-      isCompleted: data['isCompleted'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+  factory TodoModel.fromFirestore(Map<String, dynamic> json) {
+    return TodoModel(
+      id: json['id'],
+      title: json['title'],
+      note: json['note'],
+      dateTime: DateTime.fromMillisecondsSinceEpoch(json['dateTime']),
+      isDone: json['isDone'] ?? false,
     );
   }
 
   Map<String, dynamic> toFirestore() {
     return {
+      'id': id,
       'title': title,
-      'description': description,
-      'isCompleted': isCompleted,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'note': note,
+      'dateTime': dateTime.millisecondsSinceEpoch,
+      'isDone': isDone,
     };
   }
-
-  @override
-  List<Object?> get props => [todoId, title, description, isCompleted, createdAt];
 }

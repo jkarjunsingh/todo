@@ -1,30 +1,15 @@
-import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
-
-abstract class ThemeEvent {}
-
-class ToggleTheme extends ThemeEvent {}
-
-abstract class ThemeState {
-  ThemeData get themeData;
-}
-
-class LightThemeState extends ThemeState {
-  @override
-  ThemeData get themeData => ThemeData.light();
-}
-
-class DarkThemeState extends ThemeState {
-  @override
-  ThemeData get themeData => ThemeData.dark();
-}
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'theme_event.dart';
+import 'theme_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
-  ThemeBloc() : super(LightThemeState()) {
-    on<ToggleTheme>((event, emit) {
-      state is LightThemeState
-          ? emit(DarkThemeState())
-          : emit(LightThemeState());
+  ThemeBloc() : super(LightTheme()) {
+    on<ToggleTheme>((event, emit) async {
+      final prefs = await SharedPreferences.getInstance();
+      bool isDark = state is LightTheme;
+      isDark ? emit(DarkTheme()) : emit(LightTheme());
+      await prefs.setBool("isDarkTheme", isDark);
     });
   }
 }
